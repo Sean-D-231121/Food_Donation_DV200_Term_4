@@ -1,9 +1,12 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./Navbar.css";
 
-const Navbar = ({ user }) => {
+const Navbar = ({ user, setUser }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const showNavBar =
     location.pathname === "/Home" ||
     location.pathname === "/Profile" ||
@@ -11,8 +14,14 @@ const Navbar = ({ user }) => {
 
   if (!showNavBar) return null;
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null); // Clear user from state
+    navigate("/SignIn"); // Redirect to sign-in page
+  };
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="navbar navbar-expand-lg Navbar-background">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/Home">
           DonationApp
@@ -47,19 +56,26 @@ const Navbar = ({ user }) => {
             </li>
           </ul>
 
-          {/* Right side of the navbar: Display user info */}
+          {/* Right side of the navbar: Display user info and logout */}
           {user && (
             <div className="d-flex align-items-center">
-              <span className="me-2">{user.username}</span>
-              <img
-                src={user.image}
-                alt="User Avatar"
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                }}
-              />
+              <span className="me-3">{user.name}</span>
+              {user.image && (
+                <img
+                  src={user.image}
+                  alt="User Avatar"
+                  className="me-3"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+              )}
+              <button className="btn btn-outline-danger" onClick={handleLogout}>
+                Logout
+              </button>
             </div>
           )}
         </div>

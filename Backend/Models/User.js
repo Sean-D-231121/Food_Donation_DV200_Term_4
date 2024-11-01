@@ -1,7 +1,8 @@
+// User Schema
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  id: { type: String, required: true },
+  userid: { type: Number, unique: true, required: true }, // Ensure `userid` is populated and unique
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
@@ -11,7 +12,7 @@ const userSchema = new mongoose.Schema({
     enum: ["Donor", "Volunteer", "Recipient"],
     required: true,
   },
-  image: { type: String, required: false }, // Image URL or path in the server
+  image: { type: String },
 });
 
 module.exports = mongoose.model("User", userSchema);

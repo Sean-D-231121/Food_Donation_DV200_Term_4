@@ -1,0 +1,34 @@
+.widget {
+  background-color: #4CAF50; /* Light background */
+  border: 1px solid #5cd160; /* Border color */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Padding inside the widget */
+  margin: 20px 0; /* Margin around the widget */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.widget h3 {
+  font-size: 1.5rem; /* Heading size */
+  margin-bottom: 15px; /* Space below the heading */
+  color: #343a40; /* Darker text color */
+}
+
+.widget ul {
+  list-style-type: none; /* Remove default list styling */
+  padding: 0; /* Remove default padding */
+}
+
+.widget li {
+  padding: 10px 0; /* Space around list items */
+  border-bottom: 1px solid #e9ecef; /* Bottom border for separation */
+  color: #495057; /* Text color */
+}
+
+.widget li:last-child {
+  border-bottom: none; /* Remove border from last item */
+}
+
+.widget li:hover {
+  background-color: #5dd863; /* Highlight background on hover */
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+}

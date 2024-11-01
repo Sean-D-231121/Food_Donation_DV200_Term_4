@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +13,7 @@ const Signup = () => {
     image: null,
   });
   const [error, setError] = useState(null);
-
+    const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -46,7 +47,8 @@ const Signup = () => {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      console.log(response.data);
+      navigate("/");
+
       // Redirect to login or another page if needed
     } catch (error) {
       console.error("Error during signup", error);

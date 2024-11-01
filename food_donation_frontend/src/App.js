@@ -20,10 +20,10 @@ function App() {
           {/* Pass setUser */}
           <Route path="/Signup" element={<SignUp />} />
           <Route path="/Home" element={<Home />} />
-          <Route path="/Profile" element={<Profile />} />
+          <Route path="/Profile" element={<Profile user={user} setUser={setUser} />} />
           <Route
             path="/AddDonation"
-            element={<AddDonation donorID={user?.id} />}
+            element={<AddDonation  />}
           />
         </Routes>
       </Router>

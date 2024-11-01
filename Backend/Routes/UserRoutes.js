@@ -15,7 +15,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-
 // Get all users
 router.get("/", async (req, res) => {
   try {
@@ -25,40 +24,33 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: "Error fetching users", error });
   }
 });
+
+// Sign in a user
 router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
   try {
-    // Find user by username and password
     const user = await User.findOne({ email, password });
-    
     if (user) {
-      console.log(user);
-      // Send full user details upon successful sign-in
       res.status(200).json({ message: "Sign in successful", user });
     } else {
-      
       res.status(401).json({ error: "Invalid credentials" });
     }
-  } catch (err) {
-    
+  } catch (error) {
     res.status(500).json({ error: "Sign in failed" });
   }
 });
 
-
-
-
-
+// Register a new user
 router.post("/register", upload.single("image"), async (req, res) => {
   try {
     const { name, email, phone, password, role } = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
 
-    // Get the current count of users
+    // Generate `userid` by counting documents + 1
     const userCount = await User.countDocuments();
 
     const user = new User({
-      id: userCount + 1, // Assign an incremental ID
+      userid: userCount + 1, // Use this as the unique identifier
       name,
       email,
       phone,
@@ -70,18 +62,15 @@ router.post("/register", upload.single("image"), async (req, res) => {
     await user.save();
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
-    console.error("Error creating user:", error); // Log error details
+    console.error("Error creating user:", error);
     res.status(400).json({ message: "Error creating user", error });
   }
 });
 
-
-
-
-// Get a user by ID
-router.get("/:id", async (req, res) => {
+// Get a user by userid
+router.get("/:userid", async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findOne({ userid: req.params.userid });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -91,16 +80,15 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Update a user by ID
-router.put("/:id", upload.single("image"), async (req, res) => {
+// Update a user by userid
+router.put("/:userid", upload.single("image"), async (req, res) => {
   try {
     const { name, email, phone, password, role } = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
+    const updatedUser = await User.findOneAndUpdate(
+      { userid: req.params.userid },
       {
-        id,
         name,
         email,
         phone,
@@ -121,10 +109,12 @@ router.put("/:id", upload.single("image"), async (req, res) => {
   }
 });
 
-// Delete a user by ID
-router.delete("/:id", async (req, res) => {
+// Delete a user by userid
+router.delete("/:userid", async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    const deletedUser = await User.findOneAndDelete({
+      userid: req.params.userid,
+    });
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });
     }

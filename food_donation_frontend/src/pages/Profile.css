@@ -1,0 +1,70 @@
+.container {
+  background-color: #f4f4f4; /* Light gray background */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  font-family: 'Arial', sans-serif; /* Choose a clean font */
+}
+
+h3, h5 {
+  color: #333; /* Dark gray text */
+}
+
+.table-responsive {
+  overflow-x: auto; /* Ensure table scrolls horizontally if needed */
+}
+
+.table {
+  border-collapse: collapse; /* For cleaner table borders */
+  width: 100%;
+}
+
+.table th, .table td {
+  border: 1px solid #ddd; /* Light gray table border */
+  padding: 10px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #4CAF50; /* Green header background */
+  color: white;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f2f2f2; /* Light gray alternate row background */
+}
+
+.btn-light {
+  background-color: #eee; /* Light gray button background */
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-light:hover {
+  background-color: #ddd; /* Slightly darker gray on hover */
+}
+
+.card {
+  background-color: #fff; /* White card background */
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Card shadow */
+}
+
+.card p {
+  color: #333; /* Dark gray text */
+}
+
+.btn-primary {
+  background-color: #4CAF50; /* Green button */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+   cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #3e8e41; /* Slightly darker green on hover */
+}

@@ -1,0 +1,16 @@
+.Navbar-background{
+    background-color: darkolivegreen;
+    
+}
+
+
+.navbar .d-flex .me-3 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+}
+
+.navbar .btn-outline-danger {
+  border-radius: 20px;
+  font-size: 0.9rem;
+}

@@ -1,48 +1,103 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import axios from "axios"; // For fetching data
+import axios from "axios";
 
-const AddDonation = ({ donorID }) => {
-  const [place, setPlace] = useState("");
-  const [service, setService] = useState("");
+const AddDonation = () => {
   const [amount, setAmount] = useState("");
-  const [recipientID, setRecipientID] = useState("");
-  const [volunteerID, setVolunteerID] = useState("");
+  const [recipientID, setRecipientID] = useState(null);
+  const [volunteerID, setVolunteerID] = useState(null);
   const [recipients, setRecipients] = useState([]);
   const [volunteers, setVolunteers] = useState([]);
+  const [donorID, setDonorID] = useState(() => {
+    const storedDonor = localStorage.getItem("user");
+    return storedDonor ? JSON.parse(storedDonor).userid : null;
+  });
+  const [recipientImage, setRecipientImage] = useState(
+    "https://via.placeholder.com/400x200"
+  );
+  const [volunteerImage, setVolunteerImage] = useState(
+    "https://via.placeholder.com/400x200"
+  );
 
   useEffect(() => {
-    // Fetch donors, recipients, and volunteers from the server
     const fetchUsers = async () => {
-      const recipientData = await axios.get(
-        "http://localhost:5000/api/users?role=Recipient"
-      );
-      const volunteerData = await axios.get(
-        "http://localhost:5000/api/users?role=Volunteer"
-      );
+      try {
+        const recipientData = await axios.get(
+          "http://localhost:5000/api/users?role=Recipient"
+        );
+        const volunteerData = await axios.get(
+          "http://localhost:5000/api/users?role=Volunteer"
+        );
 
-      setRecipients(recipientData.data);
-      setVolunteers(volunteerData.data);
+        setRecipients(
+          recipientData.data.filter((user) => user.role === "Recipient")
+        );
+        setVolunteers(
+          volunteerData.data.filter((user) => user.role === "Volunteer")
+        );
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
     };
-    
+
     fetchUsers();
   }, []);
 
+  const handleUserSelect = async (userId, setUserImage) => {
+    if (!userId) return;
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/users/${userId}`
+      );
+      const user = response.data;
+      setUserImage(
+        user.image
+          ? `http://localhost:5000${user.image}`
+          : "https://via.placeholder.com/400x200"
+      );
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle the donation submission
+
+    // Confirm values are integers
+    const donationData = {
+      donorID: parseInt(donorID, 10),
+      recipientID: parseInt(recipientID, 10),
+      volunteerID: parseInt(volunteerID, 10),
+      amountDonated: parseInt(amount, 10),
+    };
+
+    // Log data to verify
+    console.log("Donation data:", donationData);
+
+    // Ensure all values are valid integers
+    if (
+      isNaN(donationData.donorID) ||
+      isNaN(donationData.recipientID) ||
+      isNaN(donationData.volunteerID) ||
+      isNaN(donationData.amountDonated)
+    ) {
+      console.error(
+        "Invalid data: Ensure all fields are properly filled in with integers."
+      );
+      return;
+    }
+
     try {
-      await axios.post("http://localhost:5000/api/donations/create", {
-        donorID,
-        recipientID,
-        volunteerID,
-        amountDonated: amount,
-      });
+      await axios.post(
+        "http://localhost:5000/api/donations/create",
+        donationData
+      );
       console.log("Donation successfully created");
     } catch (error) {
       console.error("Error creating donation:", error);
     }
   };
+
 
   return (
     <div className="container mt-5">
@@ -53,19 +108,22 @@ const AddDonation = ({ donorID }) => {
             style={{ backgroundColor: "#4CAF50", borderRadius: "10px" }}
           >
             <img
-              src="https://via.placeholder.com/400x200"
-              alt="Place"
+              src={recipientImage}
+              alt="Recipient"
               className="card-img-top"
             />
             <div className="card-body">
               <select
                 className="form-select"
-                value={recipientID}
-                onChange={(e) => setRecipientID(e.target.value)}
+                value={recipientID || ""}
+                onChange={(e) => {
+                  setRecipientID(parseInt(e.target.value, 10));
+                  handleUserSelect(e.target.value, setRecipientImage);
+                }}
               >
-                <option>Choose recipient</option>
+                <option value="">Choose recipient</option>
                 {recipients.map((recipient) => (
-                  <option key={recipient.id} value={recipient.id}>
+                  <option key={recipient.userid} value={recipient.userid}>
                     {recipient.name}
                   </option>
                 ))}
@@ -80,19 +138,22 @@ const AddDonation = ({ donorID }) => {
             style={{ backgroundColor: "#4CAF50", borderRadius: "10px" }}
           >
             <img
-              src="https://via.placeholder.com/400x200"
-              alt="Service"
+              src={volunteerImage}
+              alt="Volunteer"
               className="card-img-top"
             />
             <div className="card-body">
               <select
                 className="form-select"
-                value={volunteerID}
-                onChange={(e) => setVolunteerID(e.target.value)}
+                value={volunteerID || ""}
+                onChange={(e) => {
+                  setVolunteerID(parseInt(e.target.value, 10));
+                  handleUserSelect(e.target.value, setVolunteerImage);
+                }}
               >
-                <option>Choose volunteer</option>
+                <option value="">Choose volunteer</option>
                 {volunteers.map((volunteer) => (
-                  <option key={volunteer.id} value={volunteer.id}>
+                  <option key={volunteer.userid} value={volunteer.userid}>
                     {volunteer.name}
                   </option>
                 ))}
@@ -114,7 +175,7 @@ const AddDonation = ({ donorID }) => {
                 className="form-control"
                 placeholder="Enter donation amount"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => setAmount(parseInt(e.target.value, 10) || "")}
               />
             </div>
           </div>

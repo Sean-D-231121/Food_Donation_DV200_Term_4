@@ -31,8 +31,16 @@ const SignIn = ({ setUser }) => {
           password: formData.password,
         }
       );
-      console.log(response.data.user);
-      setUser(response.data.user); // Set the user data received from server
+
+      const user = response.data.user;
+      console.log(user);
+
+      // Save user data to local storage
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Optionally, update app state
+      setUser(user);
+
       navigate("/Home"); // Redirect to Home on successful sign-in
     } catch (err) {
       if (err.response) {
