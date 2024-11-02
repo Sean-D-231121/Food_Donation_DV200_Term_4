@@ -1,3 +1,4 @@
+// Navbar.js
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -16,18 +17,20 @@ const Navbar = ({ user, setUser }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    setUser(null); // Clear user from state
-    navigate("/SignIn"); // Redirect to sign-in page
+    setUser(null);
+    navigate("/");
   };
 
   return (
-    <nav className="navbar navbar-expand-lg Navbar-background">
-      <div className="container-fluid">
+    <nav className="navbar navbar-expand-lg navbar-custom sticky-top">
+      <div className="container">
         <Link className="navbar-brand" to="/Home">
-          DonationApp
+          <i className="fas fa-hand-holding-heart me-2"></i>
+          ShareABite
         </Link>
+
         <button
-          className="navbar-toggler"
+          className="navbar-toggler custom-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
@@ -37,44 +40,57 @@ const Navbar = ({ user, setUser }) => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
+
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <Link className="nav-link" to="/Home">
-                Home
+              <Link
+                className={`nav-link ${
+                  location.pathname === "/Home" ? "active" : ""
+                }`}
+                to="/Home"
+              >
+                <i className="fas fa-home me-1"></i> Home
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/Profile">
-                Profile
+              <Link
+                className={`nav-link ${
+                  location.pathname === "/Profile" ? "active" : ""
+                }`}
+                to="/Profile"
+              >
+                <i className="fas fa-user me-1"></i> Profile
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/AddDonation">
-                Add Donation
+              <Link
+                className={`nav-link ${
+                  location.pathname === "/AddDonation" ? "active" : ""
+                }`}
+                to="/AddDonation"
+              >
+                <i className="fas fa-plus-circle me-1"></i> Add Donation
               </Link>
             </li>
           </ul>
 
-          {/* Right side of the navbar: Display user info and logout */}
           {user && (
-            <div className="d-flex align-items-center">
-              <span className="me-3">{user.name}</span>
+            <div className="d-flex align-items-center user-section">
+              <span className="user-name me-3">{user.name}</span>
               {user.image && (
                 <img
-                  src={user.image}
+                  src={`http://localhost:5000${user.image}`}
                   alt="User Avatar"
-                  className="me-3"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    objectFit: "cover",
+                  className="user-avatar me-3"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://via.placeholder.com/40";
                   }}
                 />
               )}
-              <button className="btn btn-outline-danger" onClick={handleLogout}>
-                Logout
+              <button className="btn btn-logout" onClick={handleLogout}>
+                <i className="fas fa-sign-out-alt me-1"></i> Logout
               </button>
             </div>
           )}

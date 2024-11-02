@@ -105,43 +105,49 @@ router.get("/top-donors", async (req, res) => {
       {
         $match: {
           dateDonated: {
-            $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // Start of the month
-            $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1) // Start of the next month
-          }
-        }
+            $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            $lt: new Date(
+              new Date().getFullYear(),
+              new Date().getMonth() + 1,
+              1
+            ),
+          },
+        },
       },
       {
         $group: {
           _id: "$donorID",
           totalAmount: { $sum: "$amountDonated" },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
       {
         $lookup: {
-          from: "users", // The name of the users collection
+          from: "users",
           localField: "_id",
-          foreignField: "id",
-          as: "donorInfo"
-        }
+          foreignField: "userid",
+          as: "donorInfo",
+        },
       },
       {
-        $unwind: "$donorInfo"
+        $unwind: "$donorInfo",
       },
       {
         $project: {
           donorName: "$donorInfo.name",
           donorEmail: "$donorInfo.email",
+          image: "$donorInfo.image",
           totalAmount: 1,
-          count: 1
-        }
+          count: 1,
+        },
       },
-      { $sort: { totalAmount: -1 } }, // Sort by total amount donated
-      { $limit: 5 } // Get top 5 donors
+      { $sort: { totalAmount: -1 } },
+      { $limit: 5 },
     ]);
 
     res.status(200).json(topDonors);
   } catch (err) {
+    console.error("Error in /top-donors:", err);
     res.status(500).json({ error: err.message });
   }
 });

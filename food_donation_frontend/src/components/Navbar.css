@@ -1,16 +1,154 @@
-.Navbar-background{
-    background-color: darkolivegreen;
-    
+/* Navbar.css */
+.navbar-custom {
+  background-color: #4CAF50; /* Changed to white background */
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.navbar-brand {
+  color: #4CAF50 !important; /* Changed to green */
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
 
-.navbar .d-flex .me-3 {
-  font-size: 1rem;
+.navbar-brand:hover {
+  transform: scale(1.05);
+  color: #3e8e41 !important; /* Darker green on hover */
+}
+
+.nav-link {
+  color: #4CAF50 !important; /* Changed to green */
   font-weight: 500;
+  padding: 0.5rem 1rem !important;
+  margin: 0 0.2rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #3e8e41 !important; /* Darker green on hover */
+  background-color: rgba(76, 175, 80, 0.1); /* Light green background on hover */
+}
+
+.nav-link.active {
+  color: white !important;
+  background-color: #4CAF50; /* Green background for active link */
+}
+
+.custom-toggler {
+  border-color: #4CAF50 !important;
+}
+
+.custom-toggler .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2876, 175, 80, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+.user-section {
+  padding: 0.5rem 0;
+}
+
+.user-name {
+  color: #4CAF50; /* Changed to green */
+  font-weight: 500;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #4CAF50; /* Changed to green */
+  transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.1);
+  border-color: #3e8e41; /* Darker green on hover */
+}
+
+.btn-logout {
+  color: white;
+  background-color: #4CAF50; /* Green background */
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: #3e8e41; /* Darker green on hover */
   color: white;
 }
 
-.navbar .btn-outline-danger {
-  border-radius: 20px;
-  font-size: 0.9rem;
+/* Mobile styles */
+@media (max-width: 991.98px) {
+  .navbar-custom {
+    background-color: #4CAF50; /* Green background for mobile */
+  }
+
+  .navbar-brand {
+    color: #4CAF50 !important;
+  }
+
+  .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .nav-link:hover {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-link.active {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .navbar-collapse {
+    background-color: #4CAF50;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .user-section {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .user-name {
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  .user-avatar {
+    margin-bottom: 0.5rem;
+    border-color: white;
+  }
+
+  .btn-logout {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-logout:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .custom-toggler {
+    border-color: #4CAF50 !important;
+    color: #4CAF50 !important;
+  }
+
+   .custom-toggler .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+  }
+
+}
+.custom-toggler .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2876, 175, 80, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }

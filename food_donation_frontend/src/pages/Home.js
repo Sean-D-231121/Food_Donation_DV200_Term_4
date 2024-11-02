@@ -35,19 +35,27 @@ const HeroSection = () => {
       }}
     >
       <h1 className="text-white">Welcome to ShareABite!</h1>
-      <p className="text-white">
-        Join us in our mission to reduce food waste and fight hunger in our
-        communities.
+      <p className="text-white text-center">
+        ShareABite is a food donation platform dedicated to reducing food waste
+        and fighting hunger by connecting donors with recipients in need. The
+        platform also engages volunteers to facilitate the collection and
+        distribution of surplus food to local communities.
       </p>
-      <button className="btn btn-light">Get Involved</button>
+      <div className="row">
+        <div className="col-md-6 justify-content-center">
+          <button className="btn btn-light">Get Involved</button>
+          <button className="btn btn-light">Profile</button>
+        </div>
+      </div>
     </div>
   );
 };
 
 const Home = () => {
   const [monthlyDonations, setMonthlyDonations] = useState([]);
-  const monthlyGoal = 20000; // Example monthly goal
-  const yearlyGoal = 200000; // Example yearly goal
+  const [topDonors, setTopDonors] = useState([]);
+  const monthlyGoal = 20000;
+  const yearlyGoal = 200000;
   const [totalDonations, setTotalDonations] = useState(0);
 
   useEffect(() => {
@@ -56,16 +64,20 @@ const Home = () => {
       .then((response) => response.json())
       .then((data) => {
         const amounts = Array(12).fill(0);
-        data.forEach((item) => (amounts[item._id - 1] = item.totalAmount)); // Assign to each month
+        data.forEach((item) => (amounts[item._id - 1] = item.totalAmount));
         setMonthlyDonations(amounts);
-
-        // Calculate the yearly total
         setTotalDonations(amounts.reduce((sum, amount) => sum + amount, 0));
       })
       .catch((error) => console.error("Error fetching donation data:", error));
+
+    // Fetch top donors with their images
+    fetch("http://localhost:5000/api/donations/top-donors")
+      .then((response) => response.json())
+      .then((data) => setTopDonors(data))
+      .catch((error) => console.error("Error fetching top donors:", error));
   }, []);
 
-  // Data for the bar chart
+  // Bar chart configuration
   const barData = {
     labels: [
       "Jan",
@@ -83,7 +95,7 @@ const Home = () => {
     ],
     datasets: [
       {
-        label: "Total amount donated",
+        label: "Monthly Donations (in bags)",
         data: monthlyDonations,
         backgroundColor: "orange",
       },
@@ -94,13 +106,33 @@ const Home = () => {
     responsive: true,
     plugins: {
       legend: {
-        display: false,
+        display: true,
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Monthly Donation Overview",
+        color: "white",
+        font: {
+          size: 16,
+        },
+      },
+    },
+    scales: {
+      y: {
+        ticks: { color: "white" },
+        grid: { color: "rgba(255, 255, 255, 0.1)" },
+      },
+      x: {
+        ticks: { color: "white" },
+        grid: { color: "rgba(255, 255, 255, 0.1)" },
       },
     },
   };
 
-  // Doughnut chart for the monthly goal
+  // Monthly goal doughnut chart
   const doughnutDataMonthly = {
+    labels: ["Donated", "Remaining"],
     datasets: [
       {
         data: [
@@ -113,8 +145,9 @@ const Home = () => {
     ],
   };
 
-  // Doughnut chart for the yearly goal
+  // Yearly goal doughnut chart
   const doughnutDataYearly = {
+    labels: ["Donated", "Remaining"],
     datasets: [
       {
         data: [
@@ -127,9 +160,21 @@ const Home = () => {
     ],
   };
 
+  const doughnutOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: "bottom",
+        labels: {
+          color: "white",
+        },
+      },
+    },
+  };
+
   return (
     <div className="container mt-5">
-      {/* Hero Section */}
       <HeroSection />
 
       <div className="row justify-content-center">
@@ -142,24 +187,11 @@ const Home = () => {
             <Bar data={barData} options={barOptions} />
           </div>
         </div>
-        <div className="row">
-          <div className="col-md-6 mb-3">
-            <div
-              className="card p-3"
-              style={{ backgroundColor: "#4CAF50 ", borderRadius: "10px" }}
-            >
-              <h5 className="text-center text-white mb-2">About us</h5>
-              <p className="text-white text-center">
-                ShareABite is a food donation platform dedicated to reducing
-                food waste and fighting hunger by connecting donors with
-                recipients in need. The platform also engages volunteers to
-                facilitate the collection and distribution of surplus food to
-                local communities.
-              </p>
-            </div>
-          </div>
 
-          <div className="col-md-6 mb-3">
+        <div className="row">
+          
+
+          <div className="col-md-12 mb-3">
             <div
               className="card p-3"
               style={{ backgroundColor: "#4CAF50", borderRadius: "10px" }}
@@ -177,6 +209,7 @@ const Home = () => {
             </div>
           </div>
         </div>
+
         {/* Monthly and Yearly Goal Sections */}
         <div className="col-md-6 mb-3">
           <div
@@ -184,13 +217,7 @@ const Home = () => {
             style={{ backgroundColor: "#4CAF50", borderRadius: "10px" }}
           >
             <h5 className="text-center text-white mb-2">Monthly Goal</h5>
-            <Doughnut
-              data={doughnutDataMonthly}
-              options={{
-                cutout: "70%",
-                plugins: { legend: { display: false } },
-              }}
-            />
+            <Doughnut data={doughnutDataMonthly} options={doughnutOptions} />
           </div>
         </div>
 
@@ -200,13 +227,7 @@ const Home = () => {
             style={{ backgroundColor: "#4CAF50", borderRadius: "10px" }}
           >
             <h5 className="text-center text-white mb-2">Year Goal</h5>
-            <Doughnut
-              data={doughnutDataYearly}
-              options={{
-                cutout: "70%",
-                plugins: { legend: { display: false } },
-              }}
-            />
+            <Doughnut data={doughnutDataYearly} options={doughnutOptions} />
           </div>
         </div>
       </div>
