@@ -1,8 +1,7 @@
-// User Schema
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  userid: { type: Number, unique: true, required: true }, // Ensure `userid` is populated and unique
+  userid: { type: Number, unique: true, required: true },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },

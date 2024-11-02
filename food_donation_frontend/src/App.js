@@ -23,7 +23,7 @@ function App() {
           <Route path="/Profile" element={<Profile user={user} setUser={setUser} />} />
           <Route
             path="/AddDonation"
-            element={<AddDonation  />}
+            element={<AddDonation donorID={user?.id} />}
           />
         </Routes>
       </Router>

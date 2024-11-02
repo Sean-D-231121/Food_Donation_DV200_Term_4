@@ -22,6 +22,28 @@ ChartJS.register(
   Legend,
   ArcElement
 );
+
+// Hero Section Component
+const HeroSection = () => {
+  return (
+    <div
+      className="hero-section text-center mb-4"
+      style={{
+        backgroundColor: "#4CAF50",
+        borderRadius: "10px",
+        padding: "20px",
+      }}
+    >
+      <h1 className="text-white">Welcome to ShareABite!</h1>
+      <p className="text-white">
+        Join us in our mission to reduce food waste and fight hunger in our
+        communities.
+      </p>
+      <button className="btn btn-light">Get Involved</button>
+    </div>
+  );
+};
+
 const Home = () => {
   const [monthlyDonations, setMonthlyDonations] = useState([]);
   const monthlyGoal = 20000; // Example monthly goal
@@ -107,6 +129,9 @@ const Home = () => {
 
   return (
     <div className="container mt-5">
+      {/* Hero Section */}
+      <HeroSection />
+
       <div className="row justify-content-center">
         {/* Bar Chart Section */}
         <div className="col-12">
@@ -121,7 +146,7 @@ const Home = () => {
           <div className="col-md-6 mb-3">
             <div
               className="card p-3"
-              style={{ backgroundColor: "#4CAF50", borderRadius: "10px" }}
+              style={{ backgroundColor: "#4CAF50 ", borderRadius: "10px" }}
             >
               <h5 className="text-center text-white mb-2">About us</h5>
               <p className="text-white text-center">
@@ -191,4 +216,3 @@ const Home = () => {
 };
 
 export default Home;
-

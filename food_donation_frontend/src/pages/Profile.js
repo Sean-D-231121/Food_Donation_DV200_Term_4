@@ -11,6 +11,7 @@ import {
 } from "chart.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import './Profile.css'
+import axios from "axios";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -29,7 +30,7 @@ const Profile = () => {
   const [donations, setDonations] = useState([]);
   const [recipients, setRecipients] = useState({});
   const [volunteers, setVolunteers] = useState({});
-
+   
   useEffect(() => {
     const fetchDonations = async () => {
       if (user && user.userid) {

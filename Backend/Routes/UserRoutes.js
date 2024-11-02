@@ -112,9 +112,7 @@ router.put("/:userid", upload.single("image"), async (req, res) => {
 // Delete a user by userid
 router.delete("/:userid", async (req, res) => {
   try {
-    const deletedUser = await User.findOneAndDelete({
-      userid: req.params.userid,
-    });
+    const deletedUser = await User.findOneAndDelete({ userid: req.params.userid });
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });
     }
