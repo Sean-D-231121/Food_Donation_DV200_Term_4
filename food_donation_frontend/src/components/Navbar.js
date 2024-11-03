@@ -3,7 +3,7 @@ import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Navbar.css";
-
+import logo from "../assets/Logo.png";
 const Navbar = ({ user, setUser }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,8 +25,13 @@ const Navbar = ({ user, setUser }) => {
     <nav className="navbar navbar-expand-lg navbar-custom sticky-top">
       <div className="container">
         <Link className="navbar-brand" to="/Home">
-          <i className="fas fa-hand-holding-heart me-2"></i>
-          FoodShare Connect
+          <img
+            src={logo}
+            alt="FoodShare Connect Logo"
+            height="40"
+            className="me-2"
+          />
+          
         </Link>
 
         <button
