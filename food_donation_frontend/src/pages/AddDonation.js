@@ -1,3 +1,5 @@
+// food_donation_frontend/src/pages/AddDonation.js
+
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
@@ -63,12 +65,14 @@ const AddDonation = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Confirm values are integers
     const donationData = {
       donorID: parseInt(donorID, 10),
       recipientID: parseInt(recipientID, 10),
       volunteerID: parseInt(volunteerID, 10),
       amountDonated: parseInt(amount, 10),
+      status: "pending",
+      recipientStatus: "pending",
+      volunteerStatus: "pending",
     };
 
     // Log data to verify
@@ -88,16 +92,26 @@ const AddDonation = () => {
     }
 
     try {
-      await axios.post(
+      const response = await axios.post(
         "http://localhost:5000/api/donations/create",
         donationData
       );
-      console.log("Donation successfully created");
+      if (response.status === 201) {
+        alert(
+          "Donation created successfully! Waiting for recipient and volunteer approval."
+        );
+        // Clear form
+        setAmount("");
+        setRecipientID(null);
+        setVolunteerID(null);
+        setRecipientImage("https://via.placeholder.com/400x200");
+        setVolunteerImage("https://via.placeholder.com/400x200");
+      }
     } catch (error) {
       console.error("Error creating donation:", error);
+      alert("Error creating donation. Please try again.");
     }
   };
-
 
   return (
     <div className="container mt-5">

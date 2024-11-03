@@ -152,26 +152,7 @@ router.get("/top-donors", async (req, res) => {
   }
 });
 
-// Get most donated items
-router.get("/most-donated-items", async (req, res) => {
-  try {
-    const mostDonatedItems = await Donation.aggregate([
-      {
-        $group: {
-          _id: "$item", // Assuming there's an 'item' field in the Donation schema
-          totalCount: { $sum: 1 },
-          totalAmount: { $sum: "$amountDonated" }
-        }
-      },
-      { $sort: { totalCount: -1 } }, // Sort by count
-      { $limit: 5 } // Get top 5 items
-    ]);
 
-    res.status(200).json(mostDonatedItems);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 
 // Get the last five donations for a user by donorID
@@ -196,8 +177,63 @@ router.get("/:donorID", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+// Backend/Routes/DonationRoutes.js
+// Add these new routes to your existing file
 
+// Update donation status
+router.patch("/status/:donationid", async (req, res) => {
+  try {
+    const { donationid } = req.params;
+    const { status, userRole, userID } = req.body;
 
+    const donation = await Donation.findOne({ donationid });
+    if (!donation) {
+      return res.status(404).json({ message: "Donation not found" });
+    }
+
+    if (userRole === "Recipient" && parseInt(userID) === donation.recipientID) {
+      donation.recipientStatus = status;
+    } else if (userRole === "Volunteer" && parseInt(userID) === donation.volunteerID) {
+      donation.volunteerStatus = status;
+    } else {
+      return res.status(403).json({ message: "Unauthorized to update this donation" });
+    }
+
+    // Update overall status if both recipient and volunteer have accepted
+    if (donation.recipientStatus === 'accepted' && donation.volunteerStatus === 'accepted') {
+      donation.status = 'accepted';
+    } else if (donation.recipientStatus === 'declined' || donation.volunteerStatus === 'declined') {
+      donation.status = 'declined';
+    }
+
+    await donation.save();
+    res.json(donation);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+// Backend/Routes/DonationRoutes.js
+
+// Add these new routes
+router.get("/recipient/:recipientID", async (req, res) => {
+  const { recipientID } = req.params;
+  try {
+    const donations = await Donation.find({ recipientID });
+    res.status(200).json(donations);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.get("/volunteer/:volunteerID", async (req, res) => {
+  const { volunteerID } = req.params;
+  try {
+    const donations = await Donation.find({ volunteerID });
+    res.status(200).json(donations);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
 module.exports = router;
 

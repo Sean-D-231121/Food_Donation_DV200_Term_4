@@ -10,8 +10,9 @@ import {
   Legend,
 } from "chart.js";
 import "bootstrap/dist/css/bootstrap.min.css";
-import './Profile.css'
+import "./Profile.css";
 import axios from "axios";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -21,83 +22,136 @@ ChartJS.register(
   Legend
 );
 
+const DonationManagement = ({ donation, user, onStatusUpdate }) => {
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "accepted":
+        return "badge bg-success";
+      case "declined":
+        return "badge bg-danger";
+      default:
+        return "badge bg-warning";
+    }
+  };
+
+  const handleStatusChange = async (status) => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:5000/api/donations/status/${donation.donationid}`,
+        {
+          status,
+          userRole: user.role,
+          userID: user.userid,
+        }
+      );
+      onStatusUpdate(response.data);
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
+  const showActions = () => {
+    if (user.role === "Donor") {
+      return (
+        <div className="text-muted">
+          Waiting for recipient and volunteer approval
+        </div>
+      );
+    } else if (
+      user.role === "Recipient" &&
+      donation.recipientStatus === "pending"
+    ) {
+      return (
+        <div>
+          <button
+            className="btn btn-success btn-sm me-2"
+            onClick={() => handleStatusChange("accepted")}
+          >
+            Accept Donation
+          </button>
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={() => handleStatusChange("declined")}
+          >
+            Decline Donation
+          </button>
+        </div>
+      );
+    } else if (
+      user.role === "Volunteer" &&
+      donation.volunteerStatus === "pending"
+    ) {
+      return (
+        <div>
+          <button
+            className="btn btn-success btn-sm me-2"
+            onClick={() => handleStatusChange("accepted")}
+          >
+            Accept Delivery
+          </button>
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={() => handleStatusChange("declined")}
+          >
+            Decline Delivery
+          </button>
+        </div>
+      );
+    }
+    return (
+      <span className={getStatusBadgeClass(donation.status)}>
+        {donation.status.toUpperCase()}
+      </span>
+    );
+  };
+
+  return (
+    <div className="donation-details p-3 border rounded mb-2">
+      <div className="row align-items-center">
+        <div className="col">
+          <h6>Donation #{donation.donationid}</h6>
+          <p className="mb-1">Amount: {donation.amountDonated} bags</p>
+          <p className="mb-1">
+            Date: {new Date(donation.dateDonated).toLocaleDateString()}
+          </p>
+        </div>
+        <div className="col-auto">{showActions()}</div>
+      </div>
+    </div>
+  );
+};
+
 const Profile = () => {
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
-
   const [donations, setDonations] = useState([]);
-  const [recipients, setRecipients] = useState({});
-  const [volunteers, setVolunteers] = useState({});
-   
-  useEffect(() => {
-    const fetchDonations = async () => {
-      if (user && user.userid) {
-        try {
-          const response = await fetch(
-            `http://localhost:5000/api/donations/${user.userid}`
-          );
-          const data = await response.json();
-          setDonations(data);
-          fetchUsersDetails(data);
-        } catch (error) {
-          console.error("Error fetching donations:", error);
-        }
-      }
-    };
-
-    fetchDonations();
-  }, [user]);
-
-  const fetchUsersDetails = async (donations) => {
-    const recipientIDs = [...new Set(donations.map((d) => d.recipientID))];
-    const volunteerIDs = [...new Set(donations.map((d) => d.volunteerID))];
-
-    const recipientPromises = recipientIDs.map((id) =>
-      fetch(`http://localhost:5000/api/users/${id}`).then((res) => res.json())
-    );
-    const volunteerPromises = volunteerIDs.map((id) =>
-      fetch(`http://localhost:5000/api/users/${id}`).then((res) => res.json())
-    );
-
-    const recipientData = await Promise.all(recipientPromises);
-    const volunteerData = await Promise.all(volunteerPromises);
-
-    const recipientMap = {};
-    recipientData.forEach((user) => {
-      recipientMap[user.userid] = user.name;
-    });
-    setRecipients(recipientMap);
-
-    const volunteerMap = {};
-    volunteerData.forEach((user) => {
-      volunteerMap[user.userid] = user.name;
-    });
-    setVolunteers(volunteerMap);
-  };
-
-  const barData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+  const [totalDonations, setTotalDonations] = useState(0);
+  const [monthlyStats, setMonthlyStats] = useState({
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
     datasets: [
       {
-        label: "Total amount donated",
-        data: [50, 80, 60, 90, 70, 60, 100, 70, 85],
-        backgroundColor: "orange",
+        label: "Monthly Donations",
+        data: Array(12).fill(0),
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
       },
     ],
-  };
+  });
 
-  const barOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-  };
-
-  // User information update handler
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -105,167 +159,196 @@ const Profile = () => {
     image: null,
   });
 
+  useEffect(() => {
+    const fetchDonations = async () => {
+      if (!user) return;
+
+      try {
+        // Construct the endpoint based on user role
+        let endpoint;
+        switch (user.role.toLowerCase()) {
+          case "donor":
+            endpoint = `http://localhost:5000/api/donations/donor/${user.userid}`;
+            break;
+          case "recipient":
+            endpoint = `http://localhost:5000/api/donations/recipient/${user.userid}`;
+            break;
+          case "volunteer":
+            endpoint = `http://localhost:5000/api/donations/volunteer/${user.userid}`;
+            break;
+          default:
+            console.error("Invalid user role");
+            return;
+        }
+
+        const response = await axios.get(endpoint);
+        const donationsData = response.data;
+        setDonations(donationsData);
+
+        // Calculate total donations
+        const total = donationsData.reduce(
+          (sum, donation) => sum + donation.amountDonated,
+          0
+        );
+        setTotalDonations(total);
+
+        // Process monthly statistics
+        const monthlyData = Array(12).fill(0);
+        donationsData.forEach((donation) => {
+          const month = new Date(donation.dateDonated).getMonth();
+          monthlyData[month] += donation.amountDonated;
+        });
+        setMonthlyStats((prevStats) => ({
+          ...prevStats,
+          datasets: [
+            {
+              ...prevStats.datasets[0],
+              data: monthlyData,
+            },
+          ],
+        }));
+      } catch (error) {
+        console.error("Error fetching donations:", error);
+      }
+    };
+
+    fetchDonations();
+  }, [user]);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleImageChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, image: e.target.files[0] }));
+    setFormData({ ...formData, image: e.target.files[0] });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user || !user.id) {
-      console.error("User or user ID is not defined.");
-      return;
-    }
-
-    const formDataToSend = new FormData();
-    formDataToSend.append("name", formData.name);
-    formDataToSend.append("email", formData.email);
-    formDataToSend.append("phone", formData.phone);
-    if (formData.image) {
-      formDataToSend.append("image", formData.image);
-    }
+    const data = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (formData[key]) data.append(key, formData[key]);
+    });
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/users/${user.id}`,
-        {
-          method: "PUT",
-          body: formDataToSend,
-        }
+      const response = await axios.put(
+        `http://localhost:5000/api/users/${user.userid}`,
+        data,
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
-
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUser(updatedUser.updatedUser);
-        localStorage.setItem("user", JSON.stringify(updatedUser.updatedUser));
-        alert("User information updated successfully!");
-      } else {
-        console.error("Error updating user:", response.statusText);
-        alert("Failed to update user information.");
-      }
+      setUser(response.data.updatedUser);
+      localStorage.setItem("user", JSON.stringify(response.data.updatedUser));
+      alert("Profile updated successfully!");
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile");
     }
   };
-  
+
+  const handleStatusUpdate = (updatedDonation) => {
+    setDonations((prevDonations) =>
+      prevDonations.map((donation) =>
+        donation.donationid === updatedDonation.donationid
+          ? updatedDonation
+          : donation
+      )
+    );
+  };
+
+  if (!user) {
+    return <div>Please log in to view your profile.</div>;
+  }
+
   return (
     <div className="container mt-5">
       <div className="row">
-        {/* Left Side - Recent Donations and Summary Cards */}
-        <div className="col-md-12">
-          <div className="row justify-content-center mb-4">
-            <h3 className="text-center">Recent Donations</h3>
-            <div className="col-12">
-              <div className="table-responsive">
-                <table className="table table-bordered">
-                  <thead>
-                    <tr style={{ backgroundColor: "#4CAF50", color: "white" }}>
-                      <th>Recipient</th>
-                      <th>Volunteer</th>
-                      <th>Amount</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {donations.map((donation, index) => (
-                      <tr
-                        key={index}
-                        style={{ backgroundColor: "#4CAF50", color: "white" }}
-                      >
-                        <td>{recipients[donation.recipientID] || "Unknown"}</td>
-                        <td>{volunteers[donation.volunteerID] || "Unknown"}</td>
-                        <td>{donation.amountDonated} bags of food</td>
-                        <td>
-                          <button className="btn btn-light">
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        <div className="col-md-4">
+          <div
+            className="card p-3"
+            style={{
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+              borderRadius: "10px",
+            }}
+          >
+            <h4>Update Profile</h4>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label">Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                />
               </div>
-            </div>
-          </div>
-          <div className="row justify-content-center">
-            <div className="col-md-6 mb-3">
-              <div
-                className="card p-3"
-                style={{ backgroundColor: "#4CAF50", borderRadius: "10px" }}
-              >
-                <h5 className="text-center text-white mb-2">
-                  How much have you donated
-                </h5>
-                <p className="text-white text-center">
-                  Amount Donated: 3000 bags of food <br />
-                  Children fed: 6000 children
-                </p>
+              <div className="mb-3">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
               </div>
-            </div>
-            <div className="col-md-6 mb-3">
-              <div
-                className="card p-3"
-                style={{ backgroundColor: "#4CAF50", borderRadius: "10px" }}
-              >
-                <h5 className="text-center text-white mb-2">
-                  Donations so far in the year
-                </h5>
-                <Bar data={barData} options={barOptions} />
+              <div className="mb-3">
+                <label className="form-label">Phone</label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
               </div>
-            </div>
+              <div className="mb-3">
+                <label className="form-label">Profile Image</label>
+                <input
+                  type="file"
+                  className="form-control"
+                  onChange={handleImageChange}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Update Profile
+              </button>
+            </form>
           </div>
         </div>
-      </div>
-      {/* Right Side - Update User Information */}
-      <div className="col-md-4">
-        <h3>Update User Information</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Name</label>
-            <input
-              type="text"
-              className="form-control"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-            />
+        <div className="col-md-8">
+          <div
+            className="card p-3"
+            style={{
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+              borderRadius: "10px",
+            }}
+          >
+            <h4>Donations</h4>
+            <ul className="list-group">
+              {donations.map((donation) => (
+                <li key={donation.donationid} className="list-group-item">
+                  <DonationManagement
+                    donation={donation}
+                    user={user}
+                    onStatusUpdate={handleStatusUpdate}
+                  />
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="mb-3">
-            <label className="form-label">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
+          <div
+            className="card p-3 mt-3"
+            style={{
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+              borderRadius: "10px",
+            }}
+          >
+            <h4>Donation Statistics</h4>
+            <p>Total Donations: {totalDonations} bags</p>
+            <Bar data={monthlyStats} />
           </div>
-          <div className="mb-3">
-            <label className="form-label">Phone</label>
-            <input
-              type="text"
-              className="form-control"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Profile Image</label>
-            <input
-              type="file"
-              className="form-control"
-              onChange={handleImageChange}
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">
-            Update
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
