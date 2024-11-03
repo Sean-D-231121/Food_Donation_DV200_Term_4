@@ -32,8 +32,7 @@ app.use("/api/users", userRoutes);
 const donationRoutes = require("./Routes/DonationRoutes");
 app.use("/api/donations", donationRoutes);
 
-const donationMetricsRoutes = require("./Routes/DonationMetricsRoutes");
-app.use("/api/metrics", donationMetricsRoutes);
+
 
 
 // Start the server

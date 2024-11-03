@@ -34,23 +34,22 @@ const HeroSection = () => {
         padding: "20px",
       }}
     >
-      <h1 className="text-white">Welcome to ShareABite!</h1>
+      <h1 className="text-white">Welcome to FoodShare Connect!</h1>
       <p className="text-white text-center">
-        ShareABite is a food donation platform dedicated to reducing food waste
-        and fighting hunger by connecting donors with recipients in need. The
-        platform also engages volunteers to facilitate the collection and
-        distribution of surplus food to local communities.
+        Join FoodShare Connect and become a hero in the fight against hunger!
+        Our innovative platform bridges the gap between surplus food and empty
+        plates, turning potential waste into nourishing meals. With just a few
+        clicks, you can make a real difference in your community. Together,
+        we're not just sharing food – we're sharing hope, one meal at a time.
+        Ready to make an impact?
       </p>
-      <div className="row">
-        <div className="col-md-6 justify-content-center">
-          <button className="btn btn-light">Get Involved</button>
-          <button className="btn btn-light">Profile</button>
-        </div>
+      <div className="d-flex justify-content-center mt-3">
+        <button className="btn btn-light me-2">Get Involved</button>
+        <button className="btn btn-light">Profile</button>
       </div>
     </div>
   );
 };
-
 const Home = () => {
   const [monthlyDonations, setMonthlyDonations] = useState([]);
   const [topDonors, setTopDonors] = useState([]);

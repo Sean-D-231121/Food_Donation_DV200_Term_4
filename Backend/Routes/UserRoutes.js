@@ -81,21 +81,25 @@ router.get("/:userid", async (req, res) => {
 });
 
 // Update a user by userid
+// Update a user by userid
 router.put("/:userid", upload.single("image"), async (req, res) => {
   try {
-    const { name, email, phone, password, role } = req.body;
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
+    const { userid } = req.params;
+    const updateData = {};
+
+    // Only include fields that are present in the request
+    if (req.body.name) updateData.name = req.body.name;
+    if (req.body.email) updateData.email = req.body.email;
+    if (req.body.phone) updateData.phone = req.body.phone;
+    
+    // Only update image if a new file was uploaded
+    if (req.file) {
+      updateData.image = `/uploads/${req.file.filename}`;
+    }
 
     const updatedUser = await User.findOneAndUpdate(
-      { userid: req.params.userid },
-      {
-        name,
-        email,
-        phone,
-        password,
-        role,
-        image: imagePath,
-      },
+      { userid: parseInt(userid) },
+      updateData,
       { new: true } // Return the updated document
     );
 
@@ -103,9 +107,13 @@ router.put("/:userid", upload.single("image"), async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: "User updated successfully", updatedUser });
+    res.status(200).json({
+      message: "User updated successfully",
+      updatedUser
+    });
   } catch (error) {
-    res.status(400).json({ message: "Error updating user", error });
+    console.error("Error updating user:", error);
+    res.status(400).json({ message: "Error updating user", error: error.message });
   }
 });
 

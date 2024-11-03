@@ -190,13 +190,23 @@ const Profile = () => {
     ],
   });
 
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    image: null,
-  });
+const [formData, setFormData] = useState({
+  name: user?.name || "",
+  email: user?.email || "",
+  phone: user?.phone || "",
+  image: null,
+});
 
+useEffect(() => {
+  if (user) {
+    setFormData({
+      name: user.name || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      image: null,
+    });
+  }
+}, [user]);
   useEffect(() => {
     const fetchDonations = async () => {
       if (!user) return;
@@ -265,7 +275,9 @@ const Profile = () => {
   };
 
   const handleImageChange = (e) => {
-    setFormData({ ...formData, image: e.target.files[0] });
+    if (e.target.files && e.target.files[0]) {
+      setFormData({ ...formData, image: e.target.files[0] });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -273,18 +285,33 @@ const Profile = () => {
 
     try {
       const formDataObj = new FormData();
-      Object.keys(formData).forEach((key) => {
-        formDataObj.append(key, formData[key]);
-      });
 
-      const response = await axios.post(
-        `http://localhost:5000/api/users/update/${user.userid}`,
-        formDataObj
+      // Only append fields that have values
+      if (formData.name) formDataObj.append("name", formData.name);
+      if (formData.email) formDataObj.append("email", formData.email);
+      if (formData.phone) formDataObj.append("phone", formData.phone);
+      if (formData.image) formDataObj.append("image", formData.image);
+
+      const response = await axios.put(
+        `http://localhost:5000/api/users/${user.userid}`,
+        formDataObj,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
-      setUser(response.data);
-      localStorage.setItem("user", JSON.stringify(response.data));
+
+      // Update local storage and state with new user data
+      const updatedUser = response.data.updatedUser;
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+
+      // Show success message
+      alert("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating user profile:", error);
+      alert("Error updating profile. Please try again.");
     }
   };
 

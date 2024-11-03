@@ -26,7 +26,7 @@ const Navbar = ({ user, setUser }) => {
       <div className="container">
         <Link className="navbar-brand" to="/Home">
           <i className="fas fa-hand-holding-heart me-2"></i>
-          ShareABite
+          FoodShare Connect
         </Link>
 
         <button
