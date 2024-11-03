@@ -63,16 +63,19 @@ const Navbar = ({ user, setUser }) => {
                 <i className="fas fa-user me-1"></i> Profile
               </Link>
             </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${
-                  location.pathname === "/AddDonation" ? "active" : ""
-                }`}
-                to="/AddDonation"
-              >
-                <i className="fas fa-plus-circle me-1"></i> Add Donation
-              </Link>
-            </li>
+            {/* Only show AddDonation link for Donor users */}
+            {user && user.role === "Donor" && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    location.pathname === "/AddDonation" ? "active" : ""
+                  }`}
+                  to="/AddDonation"
+                >
+                  <i className="fas fa-plus-circle me-1"></i> Add Donation
+                </Link>
+              </li>
+            )}
           </ul>
 
           {user && (

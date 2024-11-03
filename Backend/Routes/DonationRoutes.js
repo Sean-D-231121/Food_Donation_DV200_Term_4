@@ -83,14 +83,16 @@ router.delete("/delete/:donationid", async (req, res) => {
 // Get total donation amount per month
 router.get("/monthlyTotals", async (req, res) => {
   try {
+    const status = req.query.status || "accepted"; // Default to 'accepted' if not specified
     const monthlyTotals = await Donation.aggregate([
+      { $match: { status: status } },
       {
         $group: {
           _id: { $month: "$dateDonated" },
           totalAmount: { $sum: "$amountDonated" },
         },
       },
-      { $sort: { "_id": 1 } } // Sort by month
+      { $sort: { _id: 1 } }, // Sort by month
     ]);
 
     res.status(200).json(monthlyTotals);
@@ -98,12 +100,14 @@ router.get("/monthlyTotals", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 // Get top donors of the current month
 router.get("/top-donors", async (req, res) => {
   try {
     const topDonors = await Donation.aggregate([
       {
         $match: {
+          status: "accepted", // Only include accepted donations
           dateDonated: {
             $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
             $lt: new Date(
@@ -232,6 +236,84 @@ router.get("/volunteer/:volunteerID", async (req, res) => {
     res.status(200).json(donations);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+// Add to DonationRoutes.js
+// In Backend/Routes/DonationRoutes.js
+
+// Add this new route for top volunteers
+router.get("/top-volunteers", async (req, res) => {
+  try {
+    const topVolunteers = await Donation.aggregate([
+      {
+        $match: {
+          dateDonated: {
+            $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$volunteerID",
+          totalDeliveries: { $sum: 1 },
+          successfulDeliveries: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "accepted"] }, 1, 0]
+            }
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "userid",
+          as: "volunteerInfo",
+        },
+      },
+      {
+        $unwind: "$volunteerInfo",
+      },
+      {
+        $match: {
+          "volunteerInfo.role": "Volunteer"
+        }
+      },
+      {
+        $project: {
+          volunteerName: "$volunteerInfo.name",
+          volunteerEmail: "$volunteerInfo.email",
+          image: "$volunteerInfo.image",
+          totalDeliveries: 1,
+          successfulDeliveries: 1,
+          successRate: {
+            $multiply: [
+              {
+                $cond: [
+                  { $eq: ["$totalDeliveries", 0] },
+                  0,
+                  {
+                    $multiply: [
+                      { $divide: ["$successfulDeliveries", "$totalDeliveries"] },
+                      100
+                    ]
+                  }
+                ]
+              },
+              1
+            ]
+          }
+        },
+      },
+      { $sort: { totalDeliveries: -1 } },
+      { $limit: 5 },
+    ]);
+
+    res.status(200).json(topVolunteers);
+  } catch (err) {
+    console.error("Error in /top-volunteers:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 

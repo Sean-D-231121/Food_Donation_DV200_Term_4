@@ -59,8 +59,8 @@ const Home = () => {
   const [totalDonations, setTotalDonations] = useState(0);
 
   useEffect(() => {
-    // Fetch monthly donation totals
-    fetch("http://localhost:5000/api/donations/monthlyTotals")
+    // Fetch monthly donation totals for accepted donations
+    fetch("http://localhost:5000/api/donations/monthlyTotals?status=accepted")
       .then((response) => response.json())
       .then((data) => {
         const amounts = Array(12).fill(0);
@@ -70,8 +70,8 @@ const Home = () => {
       })
       .catch((error) => console.error("Error fetching donation data:", error));
 
-    // Fetch top donors with their images
-    fetch("http://localhost:5000/api/donations/top-donors")
+    // Fetch top donors with their images (only for accepted donations)
+    fetch("http://localhost:5000/api/donations/top-donors?status=accepted")
       .then((response) => response.json())
       .then((data) => setTopDonors(data))
       .catch((error) => console.error("Error fetching top donors:", error));

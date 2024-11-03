@@ -34,6 +34,22 @@ const DonationManagement = ({ donation, user, onStatusUpdate }) => {
     }
   };
 
+  const getDonationStatus = () => {
+    if (
+      donation.recipientStatus === "declined" ||
+      donation.volunteerStatus === "declined"
+    ) {
+      return "declined";
+    } else if (
+      donation.recipientStatus === "accepted" &&
+      donation.volunteerStatus === "accepted"
+    ) {
+      return "accepted";
+    } else {
+      return "pending";
+    }
+  };
+
   const handleStatusChange = async (status) => {
     try {
       const response = await axios.patch(
@@ -50,13 +66,34 @@ const DonationManagement = ({ donation, user, onStatusUpdate }) => {
     }
   };
 
+  const showDonorStatus = () => {
+    return (
+      <div className="status-container">
+        <div className="status-row">
+          <span className="status-label">Recipient Status:</span>
+          <span className={getStatusBadgeClass(donation.recipientStatus)}>
+            {donation.recipientStatus.toUpperCase()}
+          </span>
+        </div>
+        <div className="status-row mt-2">
+          <span className="status-label">Volunteer Status:</span>
+          <span className={getStatusBadgeClass(donation.volunteerStatus)}>
+            {donation.volunteerStatus.toUpperCase()}
+          </span>
+        </div>
+        <div className="status-row mt-2">
+          <span className="status-label">Overall Status:</span>
+          <span className={getStatusBadgeClass(getDonationStatus())}>
+            {getDonationStatus().toUpperCase()}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   const showActions = () => {
     if (user.role === "Donor") {
-      return (
-        <div className="text-muted">
-          Waiting for recipient and volunteer approval
-        </div>
-      );
+      return showDonorStatus();
     } else if (
       user.role === "Recipient" &&
       donation.recipientStatus === "pending"
@@ -99,8 +136,8 @@ const DonationManagement = ({ donation, user, onStatusUpdate }) => {
       );
     }
     return (
-      <span className={getStatusBadgeClass(donation.status)}>
-        {donation.status.toUpperCase()}
+      <span className={getStatusBadgeClass(getDonationStatus())}>
+        {getDonationStatus().toUpperCase()}
       </span>
     );
   };
@@ -127,7 +164,8 @@ const Profile = () => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
   const [donations, setDonations] = useState([]);
-  const [totalDonations, setTotalDonations] = useState(0);
+  const [acceptedDonations, setAcceptedDonations] = useState([]);
+  const [totalAcceptedDonations, setTotalAcceptedDonations] = useState(0);
   const [monthlyStats, setMonthlyStats] = useState({
     labels: [
       "Jan",
@@ -145,9 +183,9 @@ const Profile = () => {
     ],
     datasets: [
       {
-        label: "Monthly Donations",
+        label: "Monthly Accepted Donations",
         data: Array(12).fill(0),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        backgroundColor: "rgba(76, 175, 80, 0.6)",
       },
     ],
   });
@@ -164,7 +202,6 @@ const Profile = () => {
       if (!user) return;
 
       try {
-        // Construct the endpoint based on user role
         let endpoint;
         switch (user.role.toLowerCase()) {
           case "donor":
@@ -185,16 +222,24 @@ const Profile = () => {
         const donationsData = response.data;
         setDonations(donationsData);
 
-        // Calculate total donations
-        const total = donationsData.reduce(
+        // Filter accepted donations
+        const accepted = donationsData.filter(
+          (donation) =>
+            donation.recipientStatus === "accepted" &&
+            donation.volunteerStatus === "accepted"
+        );
+        setAcceptedDonations(accepted);
+
+        // Calculate total accepted donations
+        const total = accepted.reduce(
           (sum, donation) => sum + donation.amountDonated,
           0
         );
-        setTotalDonations(total);
+        setTotalAcceptedDonations(total);
 
-        // Process monthly statistics
+        // Process monthly statistics for accepted donations
         const monthlyData = Array(12).fill(0);
-        donationsData.forEach((donation) => {
+        accepted.forEach((donation) => {
           const month = new Date(donation.dateDonated).getMonth();
           monthlyData[month] += donation.amountDonated;
         });
@@ -225,129 +270,98 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (formData[key]) data.append(key, formData[key]);
-    });
 
     try {
-      const response = await axios.put(
-        `http://localhost:5000/api/users/${user.userid}`,
-        data,
-        { headers: { "Content-Type": "multipart/form-data" } }
+      const formDataObj = new FormData();
+      Object.keys(formData).forEach((key) => {
+        formDataObj.append(key, formData[key]);
+      });
+
+      const response = await axios.post(
+        `http://localhost:5000/api/users/update/${user.userid}`,
+        formDataObj
       );
-      setUser(response.data.updatedUser);
-      localStorage.setItem("user", JSON.stringify(response.data.updatedUser));
-      alert("Profile updated successfully!");
+      setUser(response.data);
+      localStorage.setItem("user", JSON.stringify(response.data));
     } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Failed to update profile");
+      console.error("Error updating user profile:", error);
     }
   };
 
-  const handleStatusUpdate = (updatedDonation) => {
-    setDonations((prevDonations) =>
-      prevDonations.map((donation) =>
-        donation.donationid === updatedDonation.donationid
-          ? updatedDonation
-          : donation
-      )
-    );
-  };
-
-  if (!user) {
-    return <div>Please log in to view your profile.</div>;
-  }
-
   return (
-    <div className="container mt-5">
+    <div className="container">
       <div className="row">
         <div className="col-md-4">
-          <div
-            className="card p-3"
-            style={{
-              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-              borderRadius: "10px",
-            }}
-          >
-            <h4>Update Profile</h4>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="form-label">Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Email</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Phone</label>
-                <input
-                  type="tel"
-                  className="form-control"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Profile Image</label>
-                <input
-                  type="file"
-                  className="form-control"
-                  onChange={handleImageChange}
-                />
-              </div>
-              <button type="submit" className="btn btn-primary">
-                Update Profile
-              </button>
-            </form>
-          </div>
+          <h2>Profile</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="form-label">Name:</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Email:</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Phone:</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Image:</label>
+              <input
+                type="file"
+                name="image"
+                onChange={handleImageChange}
+                className="form-control"
+              />
+            </div>
+            <button type="submit" className="btn btn-primary">
+              Update Profile
+            </button>
+          </form>
         </div>
         <div className="col-md-8">
-          <div
-            className="card p-3"
-            style={{
-              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-              borderRadius: "10px",
-            }}
-          >
-            <h4>Donations</h4>
-            <ul className="list-group">
-              {donations.map((donation) => (
-                <li key={donation.donationid} className="list-group-item">
-                  <DonationManagement
-                    donation={donation}
-                    user={user}
-                    onStatusUpdate={handleStatusUpdate}
-                  />
-                </li>
-              ))}
-            </ul>
+          <h2>Donations</h2>
+          <div className="donation-list">
+            {donations.map((donation) => (
+              <DonationManagement
+                key={donation.donationid}
+                donation={donation}
+                user={user}
+                onStatusUpdate={(updatedDonation) => {
+                  setDonations((prevDonations) =>
+                    prevDonations.map((donation) =>
+                      donation.donationid === updatedDonation.donationid
+                        ? updatedDonation
+                        : donation
+                    )
+                  );
+                }}
+              />
+            ))}
           </div>
-          <div
-            className="card p-3 mt-3"
-            style={{
-              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-              borderRadius: "10px",
-            }}
-          >
-            <h4>Donation Statistics</h4>
-            <p>Total Donations: {totalDonations} bags</p>
-            <Bar data={monthlyStats} />
-          </div>
+          <h2>Monthly Statistics</h2>
+          <Bar data={monthlyStats} />
+          <h2>Accepted Donations</h2>
+          <p>Total Accepted Donations: {totalAcceptedDonations} bags</p>
         </div>
       </div>
     </div>
