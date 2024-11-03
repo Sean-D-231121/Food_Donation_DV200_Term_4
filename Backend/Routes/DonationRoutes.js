@@ -242,6 +242,8 @@ router.get("/volunteer/:volunteerID", async (req, res) => {
 // In Backend/Routes/DonationRoutes.js
 
 // Add this new route for top volunteers
+// In Backend/Routes/DonationRoutes.js
+
 router.get("/top-volunteers", async (req, res) => {
   try {
     const topVolunteers = await Donation.aggregate([
@@ -249,7 +251,11 @@ router.get("/top-volunteers", async (req, res) => {
         $match: {
           dateDonated: {
             $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-            $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+            $lt: new Date(
+              new Date().getFullYear(),
+              new Date().getMonth() + 1,
+              1
+            ),
           },
         },
       },
@@ -259,10 +265,10 @@ router.get("/top-volunteers", async (req, res) => {
           totalDeliveries: { $sum: 1 },
           successfulDeliveries: {
             $sum: {
-              $cond: [{ $eq: ["$status", "accepted"] }, 1, 0]
-            }
-          }
-        }
+              $cond: [{ $eq: ["$status", "accepted"] }, 1, 0],
+            },
+          },
+        },
       },
       {
         $lookup: {
@@ -277,8 +283,8 @@ router.get("/top-volunteers", async (req, res) => {
       },
       {
         $match: {
-          "volunteerInfo.role": "Volunteer"
-        }
+          "volunteerInfo.role": "Volunteer",
+        },
       },
       {
         $project: {
@@ -295,15 +301,17 @@ router.get("/top-volunteers", async (req, res) => {
                   0,
                   {
                     $multiply: [
-                      { $divide: ["$successfulDeliveries", "$totalDeliveries"] },
-                      100
-                    ]
-                  }
-                ]
+                      {
+                        $divide: ["$successfulDeliveries", "$totalDeliveries"],
+                      },
+                      100,
+                    ],
+                  },
+                ],
               },
-              1
-            ]
-          }
+              1,
+            ],
+          },
         },
       },
       { $sort: { totalDeliveries: -1 } },
