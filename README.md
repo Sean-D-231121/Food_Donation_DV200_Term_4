@@ -1,6 +1,4 @@
-![Logo Image](path_to_your_logo.png)
-
-# FoodShare Connect
+![Logo Image](food_donation_frontend/src/assets/Logo.png)
 
 FoodShare Connect is a web application designed to facilitate food donations by connecting donors with recipients through volunteer delivery services. The platform aims to reduce food waste and help those in need by creating an efficient donation management system.
 
@@ -54,16 +52,19 @@ npm start
 
 ## UI Design
 - Login Page
-[Add login page screenshot]
+![Add login page screenshot]()
+
+- Sign up Page
+![Add login page screenshot]()
 
 - Home Dashboard
-[Add dashboard screenshot]
+![Add dashboard screenshot]()
 
 - Profile Page
-[Add profile page screenshot]
+![Add profile page screenshot]()
 
 - Donation Management
-[Add donation management screenshot]
+![Add donation management screenshot]()
 
 ## Development Process
 ### Key Highlights
