@@ -1,6 +1,6 @@
-![Logo Image](food_donation_frontend/src/assets/Logo.png)
+![Logo Image](food_donation_frontend/src/assets/Logo2.png)
 
-FoodShare Connect is a web application designed to facilitate food donations by connecting donors with recipients through volunteer delivery services. The platform aims to reduce food waste and help those in need by creating an efficient donation management system.
+MealBridging is a web application designed to facilitate food donations by connecting donors with recipients through volunteer delivery services. The platform aims to reduce food waste and help those in need by creating an efficient donation management system.
 
 ### Built With
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
