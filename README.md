@@ -52,19 +52,21 @@ npm start
 
 ## UI Design
 - Login Page
-![Add login page screenshot]()
+![Add login page screenshot](food_donation_frontend/src/assets/Signin-example.png)
 
 - Sign up Page
-![Add login page screenshot]()
+![Add login page screenshot](food_donation_frontend/src/assets/Signup-example.png)
 
 - Home Dashboard
-![Add dashboard screenshot]()
+![Add dashboard screenshot](food_donation_frontend/src/assets/Home-example.png)
 
-- Profile Page
-![Add profile page screenshot]()
+- Profile Donor Page
+![Add profile page screenshot](food_donation_frontend/src/assets/Donor-Profile-example.png)
+- Profile Recipient/Volunteer Page
+![Add profile page screenshot](food_donation_frontend/src/assets/RecipientAndVolunteer-example.png)
 
-- Donation Management
-![Add donation management screenshot]()
+- Add Donation page
+![Add donation management screenshot](food_donation_frontend/src/assets/AddDonations-example.png)
 
 ## Development Process
 ### Key Highlights
@@ -91,21 +93,17 @@ npm start
 
 ### Future Implementations
 
-1. **Enhanced Communication**
+1. **Communication**
 - Integrated chat system for direct user interaction
 - Email notification system for important updates
 
 2. **Platform Expansion**
-- Mobile application for on-the-go access
 - Social media integration for wider reach and easier sharing
-
-
+- 
 3. **User security**
    - add JWT and bcrypt to make user authentication
    - The user will only be logged in for around an hour
 
-4. **Logistics Optimization**
-- [ ] Integration with mapping services for streamlined delivery routes
 
 ## Database Schema
 
@@ -133,21 +131,21 @@ npm start
 | status        | String   | Current status of the donation |
 | dateDonated   | Date     | Timestamp of the donation      |
 
-### 🔗 Relationships
+###  Relationships
 
 - Each donation in the Donations Collection is linked to:
 - A donor in the Users Collection via `donorID`
 - A recipient in the Users Collection via `recipientID`
 - A volunteer in the Users Collection via `volunteerID`
 
-### 📝 Notes
+###  Notes
 
 - The `role` field in the Users Collection determines the user's permissions and access levels within the application.
 - The `status` field in the Donations Collection can be used to track the lifecycle of a donation (e.g., pending, in transit, delivered).
 
-## 🌐 API Endpoints
+##  API Endpoints
 
-### 👥 User Routes
+###  User Routes
 
 | Method | Endpoint                | Description                      |
 |--------|-------------------------|----------------------------------|
@@ -156,7 +154,7 @@ npm start
 | GET    | `/api/users/:userid`    | Retrieve user details by user ID |
 | PUT    | `/api/users/:userid`    | Update user details by user ID   |
 
-### 🎁 Donation Routes
+### Donation Routes
 
 | Method | Endpoint                                  | Description                                |
 |--------|-------------------------------------------|--------------------------------------------|
@@ -171,10 +169,13 @@ npm start
 ### 📜 Notes
 - The `:userid`, `:donorID`, and `:donationid` parameters should be replaced with actual values when making requests.
 - Ensure that appropriate authentication and authorization measures are in place for sensitive endpoints.
-
+## Demonstration
+[Link To Demonstration Video]()
 ### Acknowlegdements
 - Tsungai Katsuro for teaching me how to deploy and create a Mern stack application
-- React Chartjs for allowing for seamless and responsive 
+- React Chartjs for allowing for seamless and responsive
+- Thank you to Adobe Firefly for all image generation for users
+
 ## License
 MIT © [Sean Dubbelman]
  
