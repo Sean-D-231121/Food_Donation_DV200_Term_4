@@ -34,9 +34,9 @@ const HeroSection = () => {
         padding: "20px",
       }}
     >
-      <h1 className="text-white">Welcome to FoodShare Connect!</h1>
+      <h1 className="text-white">Welcome to MealBridging!</h1>
       <p className="text-white text-center">
-        Join FoodShare Connect and become a hero in the fight against hunger!
+        Join MealBridging and become a hero in the fight against hunger!
         Our innovative platform bridges the gap between surplus food and empty
         plates, turning potential waste into nourishing meals. With just a few
         clicks, you can make a real difference in your community. Together,
