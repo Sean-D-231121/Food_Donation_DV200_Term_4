@@ -13,7 +13,7 @@ const TopDonorsWidget = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "http://localhost:5000/api/donations/top-donors"
+          "http://localhost:5001/api/donations/top-donors"
         );
 
         // Map over the donors and construct proper image URLs
@@ -21,7 +21,7 @@ const TopDonorsWidget = () => {
           ...donor,
           // If donor has an image path, construct full URL, otherwise use placeholder
           imageUrl: donor.image
-            ? `http://localhost:5000${donor.image}`
+            ? `http://localhost:5001${donor.image}`
             : "https://via.placeholder.com/50",
         }));
 

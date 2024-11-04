@@ -53,7 +53,7 @@ const DonationManagement = ({ donation, user, onStatusUpdate }) => {
   const handleStatusChange = async (status) => {
     try {
       const response = await axios.patch(
-        `http://localhost:5000/api/donations/status/${donation.donationid}`,
+        `http://localhost:5001/api/donations/status/${donation.donationid}`,
         {
           status,
           userRole: user.role,
@@ -215,13 +215,13 @@ useEffect(() => {
         let endpoint;
         switch (user.role.toLowerCase()) {
           case "donor":
-            endpoint = `http://localhost:5000/api/donations/donor/${user.userid}`;
+            endpoint = `http://localhost:5001/api/donations/donor/${user.userid}`;
             break;
           case "recipient":
-            endpoint = `http://localhost:5000/api/donations/recipient/${user.userid}`;
+            endpoint = `http://localhost:5001/api/donations/recipient/${user.userid}`;
             break;
           case "volunteer":
-            endpoint = `http://localhost:5000/api/donations/volunteer/${user.userid}`;
+            endpoint = `http://localhost:5001/api/donations/volunteer/${user.userid}`;
             break;
           default:
             console.error("Invalid user role");
@@ -293,7 +293,7 @@ useEffect(() => {
       if (formData.image) formDataObj.append("image", formData.image);
 
       const response = await axios.put(
-        `http://localhost:5000/api/users/${user.userid}`,
+        `http://localhost:5001/api/users/${user.userid}`,
         formDataObj,
         {
           headers: {

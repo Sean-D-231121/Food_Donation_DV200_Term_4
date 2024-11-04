@@ -25,10 +25,10 @@ const AddDonation = () => {
     const fetchUsers = async () => {
       try {
         const recipientData = await axios.get(
-          "http://localhost:5000/api/users?role=Recipient"
+          "http://localhost:5001/api/users?role=Recipient"
         );
         const volunteerData = await axios.get(
-          "http://localhost:5000/api/users?role=Volunteer"
+          "http://localhost:5001/api/users?role=Volunteer"
         );
 
         setRecipients(
@@ -49,12 +49,12 @@ const AddDonation = () => {
     if (!userId) return;
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/users/${userId}`
+        `http://localhost:5001/api/users/${userId}`
       );
       const user = response.data;
       setUserImage(
         user.image
-          ? `http://localhost:5000${user.image}`
+          ? `http://localhost:5001${user.image}`
           : "https://via.placeholder.com/400x200"
       );
     } catch (error) {
@@ -93,7 +93,7 @@ const AddDonation = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/donations/create",
+        "http://localhost:5001/api/donations/create",
         donationData
       );
       if (response.status === 201) {

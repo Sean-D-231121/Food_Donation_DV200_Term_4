@@ -41,7 +41,7 @@ const Signup = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/users/register",
+        "http://localhost:5001/api/users/register",
         formDataObj,
         {
           headers: { "Content-Type": "multipart/form-data" },

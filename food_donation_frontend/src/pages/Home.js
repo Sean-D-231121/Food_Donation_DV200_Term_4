@@ -41,7 +41,7 @@ const HeroSection = () => {
         plates, turning potential waste into nourishing meals. With just a few
         clicks, you can make a real difference in your community. Together,
         we're not just sharing food – we're sharing hope, one meal at a time.
-        Ready to make an impact?
+        Ready to make an impact1
       </p>
       <div className="d-flex justify-content-center mt-3">
         <button className="btn btn-light me-2">Get Involved</button>
@@ -59,7 +59,7 @@ const Home = () => {
 
   useEffect(() => {
     // Fetch monthly donation totals for accepted donations
-    fetch("http://localhost:5000/api/donations/monthlyTotals?status=accepted")
+    fetch("http://localhost:5001/api/donations/monthlyTotals?status=accepted")
       .then((response) => response.json())
       .then((data) => {
         const amounts = Array(12).fill(0);
@@ -70,7 +70,7 @@ const Home = () => {
       .catch((error) => console.error("Error fetching donation data:", error));
 
     // Fetch top donors with their images (only for accepted donations)
-    fetch("http://localhost:5000/api/donations/top-donors?status=accepted")
+    fetch("http://localhost:5001/api/donations/top-donors?status=accepted")
       .then((response) => response.json())
       .then((data) => setTopDonors(data))
       .catch((error) => console.error("Error fetching top donors:", error));

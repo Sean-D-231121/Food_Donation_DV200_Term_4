@@ -88,7 +88,7 @@ const Navbar = ({ user, setUser }) => {
               <span className="user-name me-3">{user.name}</span>
               {user.image && (
                 <img
-                  src={`http://localhost:5000${user.image}`}
+                  src={`http://localhost:5001${user.image}`}
                   alt="User Avatar"
                   className="user-avatar me-3"
                   onError={(e) => {
