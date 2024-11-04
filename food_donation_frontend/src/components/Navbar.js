@@ -3,7 +3,7 @@ import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Navbar.css";
-import logo from "../assets/Logo.png";
+import logo from "../assets/Logo2.png";
 const Navbar = ({ user, setUser }) => {
   const location = useLocation();
   const navigate = useNavigate();
