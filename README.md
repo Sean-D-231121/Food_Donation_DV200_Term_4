@@ -33,12 +33,26 @@ npm start
 # In food_donation_frontend directory
 npm start
 
+
+## Login information
+- Donor
+Email: cameron.cathers@gmail.com
+password: Cameron123
+- Recipient
+Email: newhopecharity@gmail.com
+password: NewHope123
+- Volunteer
+Email: superfastdelivery@gmail.com
+password: Super123
+
 ## Features
 
 ### User Roles
 - Donor
 - Recipient
 - Volunteer
+
+
 
 ### Donation Management
 - Real-time donation tracking
